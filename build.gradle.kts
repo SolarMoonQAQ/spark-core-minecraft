@@ -177,57 +177,6 @@ tasks.withType<Jar>().configureEach {
 dependencies {
     core("thedarkcolour:kotlinforforge-neoforge:${kff_version}")
 
-    externalLib(project(":api")) {
-        exclude(group = "org.slf4j", module = "slf4j-api")
-    }
-
-    externalLib("io.github.nsk90:kstatemachine-jvm") {
-        version {
-            strictly("[0.34,)")
-            prefer("0.34.2")
-        }
-    }
-
-    externalLib("io.arrow-kt:arrow-core") {
-        version {
-            strictly(arrow_version)
-        }
-    }
-
-    externalLib("io.arrow-kt:arrow-core-serialization") {
-        version {
-            strictly(arrow_version)
-        }
-    }
-
-    externalLib("io.arrow-kt:arrow-fx-coroutines") {
-        version {
-            strictly(arrow_version)
-        }
-    }
-
-    listOf(
-        "org.graalvm.polyglot:polyglot",
-        "org.graalvm.js:js-language",
-        "org.graalvm.regex:regex",
-        "org.graalvm.shadowed:icu4j",
-        "org.graalvm.shadowed:xz",
-        "org.graalvm.truffle:truffle-api",
-        "org.graalvm.truffle:truffle-compiler",
-        "org.graalvm.truffle:truffle-runtime",
-        "org.graalvm.sdk:collections",
-        "org.graalvm.sdk:jniutils",
-        "org.graalvm.sdk:nativebridge",
-        "org.graalvm.sdk:nativeimage",
-        "org.graalvm.sdk:word",
-    ).forEach {
-        externalLib(it) {
-            version {
-                strictly(graaljs_version)
-            }
-        }
-    }
-
     // 兼容
     implementation("maven.modrinth:jade:${property("jade_version")}")
 
