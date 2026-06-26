@@ -17,13 +17,14 @@ val mod_group_id: String by project
 val build_name: String by project
 val scf_version: String by project
 val kff_version: String by project
+val arrow_version: String by project
+val graaljs_version: String by project
 
 plugins {
     idea
-    kotlin("jvm") version "2.2.20"
-    kotlin("plugin.serialization") version "2.2.20"
-    id("org.jetbrains.kotlinx.atomicfu") version "0.29.0"
-    id("net.neoforged.moddev") version "2.0.107"
+    kotlin("jvm") version "2.4.0"
+    kotlin("plugin.serialization") version "2.4.0"
+    id("net.neoforged.moddev") version "2.0.141"
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
@@ -36,12 +37,12 @@ base {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.apply {
             add("-Xjvm-default=all")
@@ -137,7 +138,6 @@ tasks.withType<ProcessResources>().configureEach {
         "mod_authors" to mod_authors,
         "mod_credits" to mod_credits,
         "mod_description" to mod_description,
-        "scf_version" to scf_version,
         "kff_version" to kff_version
     )
     inputs.properties(replaceProperties)
@@ -177,33 +177,54 @@ tasks.withType<Jar>().configureEach {
 dependencies {
     core("thedarkcolour:kotlinforforge-neoforge:${kff_version}")
 
-    externalLib(project(":api"))
+    externalLib(project(":api")) {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
 
-    externalLib("io.github.nsk90:kstatemachine-jvm:0.34.2") {
+    externalLib("io.github.nsk90:kstatemachine-jvm") {
         version {
             strictly("[0.34,)")
             prefer("0.34.2")
         }
     }
 
-    externalLib("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.4.0") {
+    externalLib("io.arrow-kt:arrow-core") {
         version {
-            strictly("[0.3,)")
-            prefer("0.4.0")
+            strictly(arrow_version)
         }
     }
 
-    externalLib("io.arrow-kt:arrow-core:2.2.0") {
+    externalLib("io.arrow-kt:arrow-core-serialization") {
         version {
-            strictly("[2.0,)")
-            prefer("2.2.0")
+            strictly(arrow_version)
         }
     }
 
-    externalLib("io.github.quillraven.fleks:Fleks-jvm:2.12") {
+    externalLib("io.arrow-kt:arrow-fx-coroutines") {
         version {
-            strictly("[2.0,)")
-            prefer("2.12")
+            strictly(arrow_version)
+        }
+    }
+
+    listOf(
+        "org.graalvm.polyglot:polyglot",
+        "org.graalvm.js:js-language",
+        "org.graalvm.regex:regex",
+        "org.graalvm.shadowed:icu4j",
+        "org.graalvm.shadowed:xz",
+        "org.graalvm.truffle:truffle-api",
+        "org.graalvm.truffle:truffle-compiler",
+        "org.graalvm.truffle:truffle-runtime",
+        "org.graalvm.sdk:collections",
+        "org.graalvm.sdk:jniutils",
+        "org.graalvm.sdk:nativebridge",
+        "org.graalvm.sdk:nativeimage",
+        "org.graalvm.sdk:word",
+    ).forEach {
+        externalLib(it) {
+            version {
+                strictly(graaljs_version)
+            }
         }
     }
 
@@ -215,7 +236,6 @@ dependencies {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 
     maven {
